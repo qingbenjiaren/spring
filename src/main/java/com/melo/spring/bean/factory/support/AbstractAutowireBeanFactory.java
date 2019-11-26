@@ -22,7 +22,23 @@ public abstract class AbstractAutowireBeanFactory extends AbstractBeanFactory{
         Object singleton = createBeanInstance(clazz);
         //bean属性填充
         populateBean(singleton,beanDefinition);
-        return null;
+
+        //初始化bean
+        initBean(singleton,beanDefinition);
+        return singleton;
+    }
+
+    private void initBean(Object singleton, BeanDefinition beanDefinition) {
+        //TODO 完成Aware接口（标记接口）相关的处理，spring mvc代码会用到
+
+        //TODO BeanProcessor的前置方法执行
+        initMethod(singleton,beanDefinition);
+    }
+
+    private void initMethod(Object singleton, BeanDefinition beanDefinition) {
+        //TODO 完成InitializingBean（接口）的处理，调用的是afterPropertySet方法
+        //完成init-method标签属性对应的方法调用
+        ReflectUtils.invokeMethod(singleton,beanDefinition.getInitMethod());
     }
 
     private void populateBean(Object singleton, BeanDefinition beanDefinition) {
@@ -52,7 +68,11 @@ public abstract class AbstractAutowireBeanFactory extends AbstractBeanFactory{
                 // 递归获取指定名称的bean实例
                 // TODO 此处可能会发送循环依赖问题
                 valueToUse = getBean(runtimeBeanReference.getRef());
+            }else{
+                //
             }
+            //利用反射设置bean属性
+            ReflectUtils.setProperty(singleton,name,valueToUse);
         }
     }
 
