@@ -2,7 +2,10 @@ package com.melo.spring.bean.factory.support;
 
 import com.melo.spring.bean.definition.BeanDefinition;
 import com.melo.spring.bean.definition.PropertyValue;
+import com.melo.spring.bean.definition.RuntimeBeanReference;
 import com.melo.spring.bean.definition.TypedStringValue;
+import com.melo.spring.bean.strategy.ConvertValueStrategy;
+import com.melo.spring.bean.strategy.surppot.StrategyBuilder;
 import com.melo.spring.bean.utils.ReflectUtils;
 
 import java.util.List;
@@ -34,6 +37,21 @@ public abstract class AbstractAutowireBeanFactory extends AbstractBeanFactory{
             if(value instanceof TypedStringValue){
                 //强转
                 TypedStringValue typedStringValue = (TypedStringValue) value;
+                String stringValue = typedStringValue.getValue();
+                //参数类型
+                Class<?> targetType = typedStringValue.getTargetType();
+                //策略模式+简单工厂模式
+                ConvertValueStrategy strategy = StrategyBuilder.buildStrategy(targetType);
+                if(strategy == null){
+                    continue;
+                }
+                valueToUse = strategy.convertValue(stringValue);
+            }else if(value instanceof RuntimeBeanReference){
+                //强转
+                RuntimeBeanReference runtimeBeanReference = (RuntimeBeanReference) value;
+                // 递归获取指定名称的bean实例
+                // TODO 此处可能会发送循环依赖问题
+                valueToUse = getBean(runtimeBeanReference.getRef());
             }
         }
     }
