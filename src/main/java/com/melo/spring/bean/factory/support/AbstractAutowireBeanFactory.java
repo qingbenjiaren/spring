@@ -10,7 +10,7 @@ import com.melo.spring.bean.utils.ReflectUtils;
 
 import java.util.List;
 
-public abstract class AbstractAutowireBeanFactory extends AbstractBeanFactory{
+public abstract class AbstractAutowireBeanFactory extends AbstractBeanFactory {
     public Object createBean(BeanDefinition beanDefinition){
         //完成bean的创建
         Class<?> clazz = resolveClassName(beanDefinition.getClazzName());

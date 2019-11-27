@@ -1,10 +1,11 @@
 package com.melo.spring.bean.factory.support;
 
 import com.melo.spring.bean.definition.BeanDefinition;
+import com.melo.spring.bean.factory.AutowireCapableBeanFactory;
 import com.melo.spring.bean.factory.BeanFactory;
 import com.melo.spring.bean.factory.registry.support.DefaultSingletonBeanRegistry;
 
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory {
+public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements AutowireCapableBeanFactory {
     //定义bean的获取流程，不关心实现
     public Object getBean(String name) {
         //从缓存中获取要找的对象
@@ -24,8 +25,5 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
         return singleton;
     }
-
-    protected abstract Object createBean(BeanDefinition bd);
-
     protected abstract BeanDefinition getBeanDefinition(String name);
 }

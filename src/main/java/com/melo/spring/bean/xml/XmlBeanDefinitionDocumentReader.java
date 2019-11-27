@@ -22,7 +22,7 @@ public class XmlBeanDefinitionDocumentReader {
         for(Element element : elements){
             //获取标签名
             String name = element.getName();
-            if(name.equals("name")){
+            if(name.equals("bean")){
                 parseDefaultElement(element);
             }else{
                 //解析自定义标签
@@ -31,7 +31,38 @@ public class XmlBeanDefinitionDocumentReader {
         }
     }
 
-    private void parseCustomElement(Element beanElement) {
+    private void parseCustomElement(Element element) {
+
+    }
+
+    private void parsePropertyElement(BeanDefinition beanDefinition, Element propertyElement) {
+        if(propertyElement == null){
+            return;
+        }
+        //获取name属性
+        String name = propertyElement.attributeValue("name");
+        String value = propertyElement.attributeValue("value");
+        String ref = propertyElement.attributeValue("ref");
+        //如果value和ref都有值，则返回
+        if(StringUtils.isNotEmpty(value) && StringUtils.isNotEmpty(ref)){
+            return;
+        }
+        PropertyValue pv = null;
+        if(StringUtils.isNotEmpty(value)){
+            //因为spring配置文件中value是String类型，而对象中的属性是各种各样的，所以需要存储类型
+            TypedStringValue typedStringValue = new TypedStringValue(value);
+            Class<?> targetType = ReflectUtils.getTypeByFieldName(beanDefinition.getClazzName(),name);
+            typedStringValue.setTargetType(targetType);
+            pv = new PropertyValue(name,typedStringValue);
+            beanDefinition.addPropertyValue(pv);
+        }else{
+            RuntimeBeanReference reference = new RuntimeBeanReference(ref);
+            pv = new PropertyValue(name,reference);
+            beanDefinition.addPropertyValue(pv);
+        }
+    }
+
+    private void parseDefaultElement(Element beanElement) {
         try {
             if(beanElement == null){
                 return;
@@ -68,36 +99,6 @@ public class XmlBeanDefinitionDocumentReader {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    private void parsePropertyElement(BeanDefinition beanDefinition, Element propertyElement) {
-        if(propertyElement == null){
-            return;
-        }
-        //获取name属性
-        String name = propertyElement.attributeValue("name");
-        String value = propertyElement.attributeValue("value");
-        String ref = propertyElement.attributeValue("ref");
-        //如果value和ref都有值，则返回
-        if(StringUtils.isNotEmpty(value) && StringUtils.isNotEmpty(ref)){
-            return;
-        }
-        PropertyValue pv = null;
-        if(StringUtils.isNotEmpty(value)){
-            //因为spring配置文件中value是String类型，而对象中的属性是各种各样的，所以需要存储类型
-            TypedStringValue typedStringValue = new TypedStringValue(value);
-            Class<?> targetType = ReflectUtils.getTypeByFieldName(beanDefinition.getClazzName(),name);
-            typedStringValue.setTargetType(targetType);
-            pv = new PropertyValue(name,typedStringValue);
-            beanDefinition.addPropertyValue(pv);
-        }else{
-            RuntimeBeanReference reference = new RuntimeBeanReference(ref);
-            pv = new PropertyValue(name,reference);
-            beanDefinition.addPropertyValue(pv);
-        }
-    }
-
-    private void parseDefaultElement(Element element) {
     }
 
 
