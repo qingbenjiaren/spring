@@ -1,5 +1,7 @@
 package com.melo.spring.bean.factory.support;
 
+import com.melo.spring.bean.aware.Aware;
+import com.melo.spring.bean.aware.BeanFactoryAware;
 import com.melo.spring.bean.definition.BeanDefinition;
 import com.melo.spring.bean.definition.PropertyValue;
 import com.melo.spring.bean.definition.RuntimeBeanReference;
@@ -30,7 +32,11 @@ public abstract class AbstractAutowireBeanFactory extends AbstractBeanFactory {
 
     private void initBean(Object singleton, BeanDefinition beanDefinition) {
         //TODO 完成Aware接口（标记接口）相关的处理，spring mvc代码会用到
-
+        if(singleton instanceof Aware){
+            if(singleton instanceof BeanFactoryAware){
+                ((BeanFactoryAware)singleton).setBeanFactory(this);
+            }
+        }
         //TODO BeanProcessor的前置方法执行
         initMethod(singleton,beanDefinition);
     }
